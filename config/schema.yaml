@@ -1,0 +1,77 @@
+# ============================================================
+# Schema Configuration
+# ============================================================
+# Defines how different source formats map to the internal
+# schema. Add new formats here without touching engine code.
+# ============================================================
+
+formats:
+  treesize:
+    description: "Raw TreeSize Pro export (XLSX)"
+    column_map:
+      Path: "full_path"
+      Size: "size"
+      Allocated: "allocated"
+      Files: "file_count"
+      Folders: "folder_count"
+      "% of Parent (Allocated)": "pct_parent"
+      "Last Modified": "last_modified"
+      "Last Accessed": "last_accessed"
+      Owner: "owner"
+    # TreeSize puts scan metadata in the first rows before the actual headers
+    header_row: 4
+    # How to pick the right sheet: "largest" auto-selects by row count,
+    # or specify a sheet name directly to override
+    sheet_strategy: "largest"
+
+  csv:
+    description: "Generic CSV export"
+    column_map:
+      Path: "full_path"
+      Size: "size"
+      "Last Modified": "last_modified"
+      "Last Accessed": "last_accessed"
+      Owner: "owner"
+    header_row: 0
+
+# ============================================================
+# Internal Schema
+# ============================================================
+# What the pipeline expects after column mapping.
+# Required columns cause a hard failure if missing.
+# Optional columns are used if present, ignored if not.
+
+internal_schema:
+  required_columns:
+    - full_path
+  optional_columns:
+    - size
+    - allocated
+    - last_modified
+    - last_accessed
+    - owner
+    - file_count
+    - folder_count
+    - pct_parent
+
+# ============================================================
+# Exclusion Patterns
+# ============================================================
+# Files matching these patterns are removed during ingestion.
+# They are system artifacts, not documents.
+
+exclusion_patterns:
+  # Exact filename matches (case-insensitive)
+  filenames:
+    - "Thumbs.db"
+    - "desktop.ini"
+    - ".DS_Store"
+
+  # Filename prefix matches
+  prefixes:
+    - "~$"
+
+  # Extension matches (case-insensitive, no dot)
+  extensions:
+    - "tmp"
+    - "bak"

@@ -1,0 +1,24 @@
+# ============================================================
+# Run Configuration — TechServe Development Estate
+# ============================================================
+# One config file per estate/run. Points to the right format,
+# root prefix, and industry ruleset.
+# ============================================================
+
+source:
+  # Must match a key in schema.yaml > formats
+  format: "treesize"
+
+  # Everything at or above this path is stripped.
+  # The meaningful folder hierarchy starts BELOW this prefix.
+  # Use double backslashes for Windows UNC paths.
+  root_prefix: "\\\\wkh_apps1\\Techserv\\Data\\Development"
+
+# Industry ruleset — loads matching config from:
+#   config/dictionaries/industry/<industry>.yaml
+#   config/retention/<industry>.yaml
+industry: "housing"
+
+output:
+  directory: "output"
+  format: "jsonl"
