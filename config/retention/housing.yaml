@@ -1,0 +1,186 @@
+# ============================================================
+# Housing Industry Retention Rules
+# ============================================================
+# Maps inferred document types to retention periods.
+# Consumed AFTER classification — does not affect scoring.
+# "permanent" means no expiry.
+#
+# sensitivity: high | medium | low
+#   high   = regulatory, legal, compliance-critical
+#   medium = operational, financial, audit-relevant
+#   low    = general correspondence, evidential, reference
+# ============================================================
+
+version: "1.0"
+
+default_retention_years: 6
+default_sensitivity: "medium"
+
+rules:
+  # Construction & Handover
+  "NHBC Certificate":
+    years: 12
+    basis: "NHBC Buildmark warranty period (10yr + 2yr buffer)"
+    sensitivity: "high"
+  "Fire Risk Assessment":
+    years: permanent
+    basis: "RRO 2005 — retain permanently"
+    sensitivity: "high"
+  EPC:
+    years: 10
+    basis: "Valid for 10 years from date of issue"
+    sensitivity: "high"
+  EICR:
+    years: 5
+    basis: "5-year inspection cycle"
+    sensitivity: "high"
+  "Gas Safety Certificate":
+    years: 2
+    basis: "Annual renewal, keep last 2 years"
+    sensitivity: "high"
+  "Snagging Report":
+    years: 12
+    basis: "Defects liability + NHBC period"
+    sensitivity: "medium"
+  "Practical Completion":
+    years: 15
+    basis: "Limitation period from practical completion"
+    sensitivity: "high"
+  "Asbestos Report":
+    years: 40
+    basis: "Control of Asbestos Regulations — long retention"
+    sensitivity: "high"
+
+  # Sales & Legal
+  Contract:
+    years: 15
+    basis: "Limitation Act 1980 — 12 years for deeds + buffer"
+    sensitivity: "high"
+  Lease:
+    years: permanent
+    basis: "Retain for duration of lease + 12 years"
+    sensitivity: "high"
+  MOS:
+    years: 6
+    basis: "Limitation Act 1980 — simple contract"
+    sensitivity: "medium"
+  CML:
+    years: 6
+    basis: "Mortgage completion record"
+    sensitivity: "medium"
+  Conveyance:
+    years: permanent
+    basis: "Title document — retain permanently"
+    sensitivity: "high"
+  Mortgage:
+    years: 6
+    basis: "Mortgage completion record"
+    sensitivity: "medium"
+  Offer:
+    years: 6
+    basis: "Pre-contract correspondence"
+    sensitivity: "low"
+
+  # Planning & Statutory
+  "S106 Agreement":
+    years: permanent
+    basis: "Planning obligation — permanent"
+    sensitivity: "high"
+  "S38 Agreement":
+    years: permanent
+    basis: "Highways adoption — permanent"
+    sensitivity: "high"
+  "S104 Agreement":
+    years: permanent
+    basis: "Sewer adoption — permanent"
+    sensitivity: "high"
+
+  # Legal
+  "Party Wall Award":
+    years: permanent
+    basis: "Party Wall etc. Act 1996 — retain permanently"
+    sensitivity: "high"
+  NDA:
+    years: 15
+    basis: "Limitation Act 1980 — deed limitation"
+    sensitivity: "high"
+  Deed:
+    years: permanent
+    basis: "Title/covenant document — retain permanently"
+    sensitivity: "high"
+  Licence:
+    years: 15
+    basis: "Limitation Act 1980 — deed limitation"
+    sensitivity: "high"
+  "Land Registry":
+    years: permanent
+    basis: "Title document — retain permanently"
+    sensitivity: "high"
+
+  # Planning
+  "Planning Application":
+    years: permanent
+    basis: "Planning record — retain permanently"
+    sensitivity: "high"
+  "Planning Order":
+    years: permanent
+    basis: "Statutory order — retain permanently"
+    sensitivity: "high"
+
+  # Finance & Procurement
+  Appraisal:
+    years: 6
+    basis: "Standard retention"
+    sensitivity: "medium"
+  Insurance:
+    years: 7
+    basis: "Policy period + claims tail"
+    sensitivity: "medium"
+  Tender:
+    years: 7
+    basis: "HMRC / procurement audit trail"
+    sensitivity: "medium"
+  Quotation:
+    years: 6
+    basis: "Standard retention"
+    sensitivity: "low"
+  Programme:
+    years: 6
+    basis: "Construction programme — standard retention"
+    sensitivity: "low"
+
+  # Construction / Utilities
+  "Utilities Search":
+    years: 6
+    basis: "Pre-construction search — standard retention"
+    sensitivity: "low"
+  "Topographic Survey":
+    years: permanent
+    basis: "Site survey record — retain permanently"
+    sensitivity: "medium"
+
+  # General
+  Invoice:
+    years: 7
+    basis: "HMRC requirement — 6 years + buffer"
+    sensitivity: "medium"
+  Report:
+    years: 6
+    basis: "Standard retention"
+    sensitivity: "low"
+  Email:
+    years: 3
+    basis: "Correspondence — short retention"
+    sensitivity: "low"
+  Photo:
+    years: 6
+    basis: "Evidential — standard retention"
+    sensitivity: "low"
+  Certificate:
+    years: 10
+    basis: "General certificate retention"
+    sensitivity: "medium"
+  Drawing:
+    years: permanent
+    basis: "As-built records — retain permanently"
+    sensitivity: "medium"

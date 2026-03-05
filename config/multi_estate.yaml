@@ -1,0 +1,28 @@
+# ============================================================
+# Multi-Estate Run Configuration
+# ============================================================
+# Processes multiple estates in a single run. Classification
+# runs independently per estate; entity clustering runs
+# cross-estate on the combined results.
+#
+# Usage:
+#   python src/main.py --multi config/multi_estate.yaml
+# ============================================================
+
+estates:
+  - name: "TechServe"
+    config: "config/run_config.yaml"
+    input: "context/wkh_apps1_wkh_apps1Techserv_Development.xlsx"
+
+  - name: "Win95"
+    config: "config/run_config_win95.yaml"
+    input: "context/win95_input.xlsx"
+
+  - name: "HomeBuy"
+    config: "config/run_config_homebuy.yaml"
+    input: "context/homebuy_merged.csv"
+
+industry: "housing"
+
+output:
+  directory: "output"

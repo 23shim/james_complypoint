@@ -1,0 +1,14 @@
+# ============================================================
+# Run Configuration — HomeBuy Estate
+# ============================================================
+
+source:
+  format: "csv"
+  root_prefix: "\\\\wkh_apps1\\WIN95\\DATA\\Development_Recovered2\\HOMEBUY"
+  source_system: "HomeBuy"
+
+industry: "housing"
+
+output:
+  directory: "output"
+  format: "jsonl"

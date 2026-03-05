@@ -14,6 +14,9 @@ source:
   # Use double backslashes for Windows UNC paths.
   root_prefix: "\\\\wkh_apps1\\Techserv\\Data\\Development"
 
+  # Identifies the source system in the output (for multi-system estates)
+  source_system: "TechServe"
+
 # Industry ruleset — loads matching config from:
 #   config/dictionaries/industry/<industry>.yaml
 #   config/retention/<industry>.yaml

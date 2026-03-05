@@ -1,0 +1,14 @@
+# ============================================================
+# Run Configuration — Win95 Development_Recovered2 Estate
+# ============================================================
+
+source:
+  format: "treesize"
+  root_prefix: "\\\\wkh_apps1\\win95\\DATA\\Development_Recovered2"
+  source_system: "Win95"
+
+industry: "housing"
+
+output:
+  directory: "output"
+  format: "jsonl"

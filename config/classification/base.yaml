@@ -1,0 +1,181 @@
+# ============================================================
+# Base Classification Dictionary — Universal
+# ============================================================
+# Categories and document types that apply across all
+# industries. Industry overlay files ADD to this; they
+# never replace it.
+# ============================================================
+
+version: "1.0"
+
+# ----------------------------------------------------------
+# Categories — organisational functions detected from folder
+# path segments (case-insensitive matching)
+# ----------------------------------------------------------
+categories:
+  Finance:
+    signals:
+      - "finance"
+      - "accounts"
+      - "accounting"
+      - "financial"
+      - "payments"
+      - "billing"
+      - "treasury"
+      - "cashflow"
+      - "cash flow"
+    aliases:
+      - "fin"
+
+  Legal:
+    signals:
+      - "legal"
+      - "compliance"
+      - "solicitors"
+      - "conveyancing"
+
+  HR:
+    signals:
+      - "hr"
+      - "human resources"
+      - "personnel"
+      - "recruitment"
+      - "payroll"
+
+  "Health & Safety":
+    signals:
+      - "health and safety"
+      - "health & safety"
+      - "fire safety"
+      - "risk assessments"
+      - "safety"
+    aliases:
+      - "h&s"
+
+  IT:
+    signals:
+      - "information technology"
+      - "technology"
+      - "systems"
+      - "infrastructure"
+    aliases:
+      - "it"
+
+  Administration:
+    signals:
+      - "admin"
+      - "administration"
+      - "general"
+      - "office"
+      - "correspondence"
+      - "audit"
+      - "marketing"
+      - "miscellaneous"
+      - "templates"
+
+# ----------------------------------------------------------
+# Document Types — what a file IS
+# ----------------------------------------------------------
+# tokens:        exact words/phrases (case-insensitive)
+# abbreviations: short forms matched as whole tokens only
+# patterns:      regex applied to the full text (case-insensitive)
+# belongs_to:    "universal" or a category name — drives
+#                reinforcement/conflict scoring
+# extensions:    file extensions strongly associated with
+#                this type (optional, low-weight hint)
+# ----------------------------------------------------------
+types:
+  Invoice:
+    tokens: ["invoice", "invoices"]
+    abbreviations: ["inv"]
+    patterns: ["\\binv[-_]?\\d+"]
+    belongs_to: "universal"
+
+  Contract:
+    tokens: ["contract", "contracts", "agreement", "agreements"]
+    belongs_to: "universal"
+
+  Certificate:
+    tokens: ["certificate", "certificates"]
+    abbreviations: ["cert"]
+    belongs_to: "universal"
+
+  Report:
+    tokens: ["report", "reports"]
+    abbreviations: ["rpt"]
+    belongs_to: "universal"
+
+  Email:
+    tokens: ["email"]
+    patterns: ["^(RE|FW|FWD)[_ ]"]
+    belongs_to: "universal"
+    extensions: ["msg", "eml"]
+
+  Letter:
+    tokens: ["letter"]
+    abbreviations: ["ltr"]
+    belongs_to: "universal"
+
+  Drawing:
+    tokens: ["drawing", "drawings"]
+    abbreviations: ["dwg", "drg"]
+    belongs_to: "universal"
+    extensions: ["dwg", "dxf"]
+
+  Photo:
+    tokens: ["photo", "photos", "photograph", "photographs", "image", "images"]
+    abbreviations: ["img"]
+    patterns: ["^(DSC|IMG)\\d{4,}"]
+    belongs_to: "universal"
+    extensions: ["jpg", "jpeg", "png", "bmp", "tiff"]
+
+  Plan:
+    tokens: ["plan", "layout"]
+    belongs_to: "universal"
+
+  Specification:
+    tokens: ["specification", "specifications"]
+    abbreviations: ["spec"]
+    belongs_to: "universal"
+
+  Minutes:
+    tokens: ["minutes", "meeting minutes"]
+    abbreviations: ["mins"]
+    belongs_to: "universal"
+
+  Lease:
+    tokens: ["lease", "leases", "tenancy"]
+    belongs_to: "Legal"
+
+  Statement:
+    tokens: ["statement"]
+    abbreviations: ["stmt"]
+    belongs_to: "universal"
+
+  Form:
+    tokens: ["form", "forms", "application form", "standard forms"]
+    belongs_to: "universal"
+
+  Policy:
+    tokens: ["policy"]
+    belongs_to: "universal"
+
+  Manual:
+    tokens: ["manual", "guide", "handbook"]
+    belongs_to: "universal"
+
+  Schedule:
+    tokens: ["schedule"]
+    belongs_to: "universal"
+
+  Notice:
+    tokens: ["notice", "notices"]
+    belongs_to: "universal"
+
+  Warranty:
+    tokens: ["warranty", "guarantee"]
+    belongs_to: "universal"
+
+  Survey:
+    tokens: ["survey"]
+    belongs_to: "universal"

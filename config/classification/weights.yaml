@@ -1,0 +1,263 @@
+# ============================================================
+# Classification Scoring Weights
+# ============================================================
+# Controls how confidence is calculated. Separated from
+# dictionaries so scoring can be tuned independently of
+# signal definitions.
+# ============================================================
+
+version: "1.0"
+
+# ----------------------------------------------------------
+# Signal Source Weights
+# ----------------------------------------------------------
+# Base confidence contributed by each signal source.
+# These directly represent "how confident are we?" for each
+# signal type — no secondary discounts are applied on top.
+#
+# Filename signals are strong (the name IS the document):
+#   token  0.85 — exact phrase match ("Fire Risk Assessment")
+#   pattern 0.75 — regex match ("INV-00234")
+#   abbrev 0.65 — abbreviation match ("EICR")
+#
+# Folder signals are moderate (folder describes contents broadly):
+#   type     0.50 — folder named after a type ("Invoices")
+#   category 0.50 — folder named after a category ("Finance")
+#
+# Extension is weak (many types share extensions):
+#   hint 0.20
+signal_weights:
+  folder_type: 0.50
+  folder_category: 0.50
+  filename_token: 0.85
+  filename_abbreviation: 0.65
+  filename_pattern: 0.75
+  extension_hint: 0.20
+
+# ----------------------------------------------------------
+# Reinforcement & Conflict Modifiers
+# ----------------------------------------------------------
+# Kept deliberately small — the base weights do most of the
+# work. Modifiers only nudge when there is structural
+# agreement or disagreement between folder and filename.
+reinforcement:
+  type_agreement_boost: 0.10      # folder confirms filename type
+  category_domain_boost: 0.05     # type's domain matches category
+
+conflict:
+  type_disagreement_penalty: 0.10  # folder contradicts filename (mild — filename still likely right)
+
+# ----------------------------------------------------------
+# Parent-Child Type Relationships
+# ----------------------------------------------------------
+# When a folder type and filename type "disagree", check here
+# first. If the folder type is a valid PARENT of the filename
+# type, apply a small boost instead of the disagreement penalty.
+# This handles cases like Certificate inside Handover Pack folder.
+parent_child_boost: 0.05
+parent_child:
+  "Handover Pack":
+    - "Certificate"
+    - "EPC"
+    - "EICR"
+    - "NHBC Certificate"
+    - "Gas Safety Certificate"
+    - "Warranty"
+    - "Manual"
+    - "O&M Manual"
+    - "Report"
+    - "Plan"
+    - "Drawing"
+    - "Photo"
+    - "SAP Calculation"
+    - "Snagging Report"
+    - "Practical Completion"
+    - "Fire Risk Assessment"
+    - "Asbestos Report"
+    - "Site Inspection"
+    - "Schedule"
+    - "Specification"
+  Drawing:
+    - "Plan"
+    - "Survey"
+    - "Specification"
+  Report:
+    - "Site Inspection"
+    - "Minutes"
+    - "Photo"
+    - "Snagging Report"
+    - "Fire Risk Assessment"
+    - "Asbestos Report"
+  "NHBC Certificate":
+    - "Certificate"
+  "Practical Completion":
+    - "Certificate"
+  "O&M Manual":
+    - "Certificate"
+    - "Manual"
+    - "Warranty"
+    - "Drawing"
+    - "Specification"
+  Contract:
+    - "Schedule"
+    - "Specification"
+    - "Drawing"
+    - "Plan"
+  Invoice:
+    - "Valuation"
+  "Site Inspection":
+    - "Photo"
+    - "Report"
+
+# ----------------------------------------------------------
+# Fuzzy Matching Parameters
+# ----------------------------------------------------------
+fuzzy:
+  max_edit_distance: 1
+  min_token_length: 5
+  fuzzy_penalty: 0.15
+
+# ----------------------------------------------------------
+# Generic Types — low-information types
+# ----------------------------------------------------------
+# Types that describe HOW a file is stored or its broad function,
+# not WHY it exists. When the deepest matched folder type OR a
+# filename pattern match is one of these, the engine promotes the
+# nearest specific (non-generic) ancestor instead.
+#
+# When ONLY generic types exist in the path, the deepest generic
+# wins — no suppression occurs.
+#
+# Example: .../14 Meeting and Reports/Clerk of Works Report/Photos/
+#   Photo(5) is generic, Report(3) is generic, Site Inspection(4)
+#   is specific → promotes to Site Inspection.
+#   If no specific type existed → Photo wins (deepest generic).
+generic_types:
+  - Photo
+  - Report
+
+# Confidence discount applied when a generic type (Photo, Report)
+# is overridden by a specific ancestor type from the folder path.
+# Applied to the ancestor's base_weight.
+generic_suppression_discount: 0.85
+
+# ----------------------------------------------------------
+# Confidence Thresholds
+# ----------------------------------------------------------
+thresholds:
+  minimum_confidence: 0.15
+
+# ----------------------------------------------------------
+# Readiness Assessment
+# ----------------------------------------------------------
+# Overall confidence = type confidence (category is informational).
+# Bands:
+#   High   = overall >= 0.50  →  Ready for Phase 2
+#   Medium = overall >= 0.35  →  Review (has signals, not conclusive)
+#   Low    = overall <  0.35  →  Not Ready (or Unknown type)
+readiness:
+  high_threshold: 0.50
+  medium_threshold: 0.35
+  unknown_status: "Not Ready"
+
+# ----------------------------------------------------------
+# Scheme Detection
+# ----------------------------------------------------------
+# Controls how folder-level scheme inference works.
+# Schemes are development sites (e.g. "Liberty Park") detected
+# by finding folders that contain clusters of plot/address
+# entities beneath them.
+scheme_detection:
+  # Minimum unique entities (plots + addresses) beneath a folder
+  # for it to qualify as a scheme candidate.
+  min_entities: 3
+
+  # Entity count scoring — folders with many entities get higher
+  # confidence. >= high_entity_threshold uses high confidence.
+  high_entity_threshold: 5
+  high_entity_confidence: 0.85
+  med_entity_confidence: 0.70
+
+  # Boost when folder sits one level above plot entity folders
+  direct_plot_children_boost: 0.10
+  # Boost when >= 3 distinct development categories in children
+  development_categories_boost: 0.10
+
+  # Quality threshold for container detection — children below
+  # this confidence are ignored when deciding parent vs child.
+  sibling_quality_threshold: 0.50
+
+  # Minimum folder name length — very short names are never schemes
+  min_scheme_name_length: 3
+
+  # Max tokens for entity-only exclusion
+  max_entity_only_tokens: 3
+
+# ----------------------------------------------------------
+# Entity Extraction
+# ----------------------------------------------------------
+# Base confidence assigned to entity matches by method.
+# Higher = more trust in that match type.
+entity_extraction:
+  token_confidence: 0.80
+  pattern_confidence: 0.65
+  abbreviation_confidence: 0.50
+
+# ----------------------------------------------------------
+# Entity Clustering
+# ----------------------------------------------------------
+# Controls how variant spellings of the same real-world entity
+# are grouped (e.g. "Mills Crescent" and "Mills Cres").
+# Uses character-trigram Jaccard similarity.
+entity_clustering:
+  # Minimum similarity to merge two entity values into one cluster.
+  # Lower = more aggressive merging (risk: false merges).
+  # Higher = more conservative (risk: duplicates remain separate).
+  similarity_threshold: 0.55
+
+# ----------------------------------------------------------
+# Duplicate Detection
+# ----------------------------------------------------------
+# Controls cross-estate file duplicate detection.
+# Tier 1: exact metadata match (filename + extension + size).
+# Tier 4: files in backup/archive/copy-style paths.
+duplicate_detection:
+  base_confidence: 0.85
+  date_match_boost: 0.10
+  owner_match_boost: 0.05
+
+  # Folder names that suggest a copy/backup location.
+  # Files in these folders are flagged as copy-path suspects.
+  copy_path_keywords:
+    - backup
+    - backups
+    - archive
+    - archived
+    - copy
+    - copies
+    - old
+    - temp
+    - tmp
+    - desktop
+    - bak
+
+# ----------------------------------------------------------
+# Place Names
+# ----------------------------------------------------------
+# Controls place name loading for scheme detection.
+place_names:
+  # Minimum character length for a place name to be loaded.
+  # Prevents very short words causing false matches.
+  min_length: 4
+
+# ----------------------------------------------------------
+# Pipeline
+# ----------------------------------------------------------
+# Operational settings for the processing pipeline.
+pipeline:
+  # Number of rows written per JSONL chunk (memory vs I/O tradeoff)
+  jsonl_chunk_size: 10000
+  # Timeout in seconds for report script subprocesses
+  report_timeout: 600
+  # Number of hex characters for file_id hash (SHA256 truncation)
+  file_id_hash_length: 16

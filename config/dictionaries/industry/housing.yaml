@@ -1,0 +1,495 @@
+# ============================================================
+# Housing Industry Dictionary
+# ============================================================
+# Extends base.yaml with housing/property development
+# specific types, abbreviations, and category signals.
+# Merged ON TOP of base — adds new entries, extends
+# existing category signal lists.
+# ============================================================
+#
+# -------------------------------------------------------
+# HOW TO ADD A NEW DOCUMENT TYPE
+# -------------------------------------------------------
+# 1. Copy the template below into the "types:" section.
+# 2. Fill in the name, keywords, and category it belongs to.
+# 3. (Optional) Add a matching retention rule in
+#    config/retention/housing.yaml.
+# 4. Re-run the pipeline — the new type is picked up
+#    automatically. No code changes needed.
+#
+# Template:
+#
+#   "My New Type":
+#     tokens: ["full name of document", "alternative name"]
+#     abbreviations: ["short"]       # leave out if none
+#     belongs_to: "CategoryName"     # must match a category
+#                                    # e.g. Sales, Construction,
+#                                    # Legal, Finance, Planning,
+#                                    # Utilities, Health & Safety
+#
+# Notes:
+#   - tokens:        Exact words found in the filename
+#                    (case-insensitive). List as many
+#                    alternative names as people use.
+#   - abbreviations: Short forms matched as whole words
+#                    only (e.g. "mos" won't match "most").
+#   - patterns:      (Advanced) Regex patterns for codes
+#                    like S104, FRA-001. Leave out if you
+#                    don't need them.
+#   - belongs_to:    Which business category this type
+#                    naturally sits in. Boosts confidence
+#                    when the folder matches.
+# -------------------------------------------------------
+
+version: "1.0"
+
+# Additional categories for housing/property development
+categories:
+  Construction:
+    scheme_signal: true
+    signals:
+      - "construction"
+      - "build"
+      - "site"
+      - "snagging"
+      - "handover"
+      - "practical completion"
+      - "defects"
+      - "aftercare"
+      - "site works"
+
+  Sales:
+    scheme_signal: true
+    signals:
+      - "sales"
+      - "resales"
+      - "freehold"
+      - "right to buy"
+      - "staircasing"
+      - "buy backs"
+      - "disposals"
+    aliases:
+      - "so"
+      - "rtb"
+
+  Planning:
+    scheme_signal: true
+    signals:
+      - "planning"
+      - "s106"
+      - "section 106"
+      - "s278"
+      - "section 278"
+
+  Utilities:
+    scheme_signal: true
+    signals:
+      - "utilities"
+      - "drainage"
+      - "sewers"
+      - "water"
+      - "gas"
+      - "electric"
+      - "s104"
+      - "section 104"
+      - "s38"
+      - "section 38"
+
+  Maintenance:
+    scheme_signal: true
+    signals:
+      - "maintenance"
+      - "grounds maintenance"
+      - "estate management"
+      - "service charges"
+    aliases:
+      - "gm"
+
+# ----------------------------------------------------------
+# Housing-specific document types
+# ----------------------------------------------------------
+types:
+  MOS:
+    tokens: ["memorandum of sale"]
+    abbreviations: ["mos"]
+    belongs_to: "Sales"
+
+  CML:
+    tokens: ["council of mortgage lenders", "cml certificate"]
+    abbreviations: ["cml"]
+    belongs_to: "Sales"
+
+  EPC:
+    tokens: ["energy performance certificate", "epc", "epcs"]
+    abbreviations: ["epc", "epcs"]
+    belongs_to: "Health & Safety"
+
+  "Fire Risk Assessment":
+    tokens: ["fire risk assessment"]
+    abbreviations: ["fra"]
+    patterns: ["\\bfra[-_ ]?\\d*"]
+    belongs_to: "Health & Safety"
+
+  "Fire Strategy":
+    tokens: ["fire strategy", "fire safety strategy", "fire door", "fire door check"]
+    belongs_to: "Health & Safety"
+
+  EICR:
+    tokens:
+      - "electrical installation condition report"
+      - "electrical inspection"
+      - "electrical cert"
+    abbreviations: ["eicr"]
+    belongs_to: "Health & Safety"
+
+  "NHBC Certificate":
+    tokens: ["nhbc", "nhbc warranty", "buildmark"]
+    abbreviations: ["nhbc"]
+    belongs_to: "Construction"
+
+  "End of Defects":
+    tokens: ["end of defects", "end of defect period"]
+    abbreviations: ["eod", "eods"]
+    belongs_to: "Construction"
+
+  "Snagging Report":
+    tokens: ["snagging", "snag list", "defects list", "desnag"]
+    belongs_to: "Construction"
+
+  "Handover Pack":
+    tokens: ["handover", "handover pack"]
+    abbreviations: ["ho"]
+    belongs_to: "Construction"
+
+  "Practical Completion":
+    tokens: ["practical completion"]
+    abbreviations: ["pc"]
+    patterns: ["\\bpc[-_ ]cert"]
+    belongs_to: "Construction"
+
+  Valuation:
+    tokens: ["valuation"]
+    abbreviations: ["val"]
+    belongs_to: "Sales"
+
+  Conveyance:
+    tokens: ["conveyance", "conveyancing", "conveyance plan", "transfer deed"]
+    belongs_to: "Legal"
+
+  Offer:
+    tokens: ["offer", "offer letter"]
+    belongs_to: "Sales"
+
+  "S106 Agreement":
+    tokens: ["s106", "section 106"]
+    abbreviations: ["s106"]
+    patterns: ["\\bs[-_ ]?106\\b"]
+    belongs_to: "Planning"
+
+  "S38 Agreement":
+    tokens: ["s38", "section 38"]
+    abbreviations: ["s38"]
+    patterns: ["\\bs[-_ ]?38\\b"]
+    belongs_to: "Utilities"
+
+  "S104 Agreement":
+    tokens: ["s104", "section 104"]
+    abbreviations: ["s104"]
+    patterns: ["\\bs[-_ ]?104\\b"]
+    belongs_to: "Utilities"
+
+  "Gas Safety Certificate":
+    tokens: ["gas safety", "gas cert"]
+    abbreviations: ["lgsr", "cp12"]
+    belongs_to: "Health & Safety"
+
+  "Site Inspection":
+    tokens:
+      - "site inspection"
+      - "inspection report"
+      - "clerk of works"
+      - "clerk of works report"
+      - "cow report"
+      - "cof w"
+    abbreviations: ["cow"]
+    belongs_to: "Construction"
+
+  "O&M Manual":
+    tokens: ["o&m manual", "operation and maintenance", "o&m"]
+    belongs_to: "Construction"
+
+  "SAP Calculation":
+    tokens: ["sap calculation", "sap assessment"]
+    abbreviations: ["sap"]
+    belongs_to: "Health & Safety"
+
+  "Asbestos Report":
+    tokens: ["asbestos", "asbestos survey", "asbestos report"]
+    belongs_to: "Health & Safety"
+
+  Mortgage:
+    tokens: ["mortgage", "mortgage offer", "mortgage approval"]
+    belongs_to: "Sales"
+
+  # --- Types discovered from Unknown analysis ---
+
+  "Party Wall Award":
+    tokens: ["party wall award", "party wall", "final award"]
+    patterns: ["\\bparty[-_ ]?wall\\b"]
+    belongs_to: "Legal"
+
+  Appraisal:
+    tokens: ["appraisal", "appraisals"]
+    belongs_to: "Finance"
+
+  Insurance:
+    tokens: ["insurance", "insurances"]
+    belongs_to: "Finance"
+
+  Tender:
+    tokens: ["tender", "tenders", "tender return", "tender report"]
+    belongs_to: "Finance"
+
+  Quotation:
+    tokens: ["quotation", "quote", "estimate"]
+    belongs_to: "Finance"
+
+  Programme:
+    tokens: ["programme", "program"]
+    belongs_to: "Construction"
+
+  "Planning Application":
+    tokens: ["planning application", "planning permission", "planning consent"]
+    patterns: ["\\btcpa\\b"]
+    belongs_to: "Planning"
+
+  "Planning Order":
+    tokens: ["planning order", "tree preservation order", "listed building consent"]
+    abbreviations: ["tpo"]
+    belongs_to: "Planning"
+
+  "Land Registry":
+    tokens: ["land registry", "land reg", "title register", "title plan", "official copy"]
+    belongs_to: "Legal"
+
+  Deed:
+    tokens: ["deed", "deeds", "deed of variation", "deed of covenant"]
+    belongs_to: "Legal"
+
+  Licence:
+    tokens: ["licence", "license"]
+    belongs_to: "Legal"
+
+  "Utilities Search":
+    tokens: ["utilities search", "utility search"]
+    patterns: ["\\butilit(y|ies)[-_ ]?search"]
+    belongs_to: "Utilities"
+
+  "Topographic Survey":
+    tokens: ["topographic survey", "topographical survey", "topo survey"]
+    abbreviations: ["topo"]
+    patterns: ["\\btopo[-_ ]?\\d"]
+    belongs_to: "Construction"
+
+  "Floor Plan":
+    tokens: ["floor plan", "floor plans", "floorplan", "floorplans"]
+    belongs_to: "Construction"
+
+  NDA:
+    tokens: ["non-disclosure agreement", "non disclosure agreement", "confidentiality agreement"]
+    abbreviations: ["nda"]
+    belongs_to: "Legal"
+
+  "S20 Notice":
+    tokens: ["s20 notice", "section 20 notice", "section 20"]
+    abbreviations: ["s20"]
+    belongs_to: "Legal"
+
+
+# ----------------------------------------------------------
+# Housing-specific entities
+# ----------------------------------------------------------
+# Entities answer "what is this document ABOUT?" — identifying
+# real-world things like plots, addresses, and schemes from
+# folder names. This is independent of type/category
+# classification which answers "what KIND of document is this?"
+#
+# -------------------------------------------------------
+# HOW TO ADD A NEW ENTITY TYPE
+# -------------------------------------------------------
+# 1. Copy the template below into the "entities:" section.
+# 2. Fill in keywords that identify this entity in folder names.
+# 3. Re-run the pipeline — the new entity is picked up
+#    automatically. No code changes needed.
+#
+# Template:
+#
+#   my_entity:
+#     tokens: ["word that identifies it", "another word"]
+#     abbreviations: ["short"]        # leave out if none
+#     patterns: ["\\bregex\\b"]       # leave out if none
+#
+# Notes:
+#   - tokens:        Exact words found in folder names
+#                    (case-insensitive). If a folder contains
+#                    this word, the folder is tagged as this
+#                    entity.
+#   - abbreviations: Short forms matched as whole words only.
+#   - patterns:      (Advanced) Regex patterns for codes
+#                    like P10, Plot-12, Unit 5A.
+#   - The entity value captured is the full folder name
+#     (e.g. "Plot 12", "Lenham Road").
+# -------------------------------------------------------
+
+entities:
+  plot:
+    tokens:
+      - "plot"
+      - "unit"
+      - "flat"
+      - "apartment"
+      - "dwelling"
+      - "bungalow"
+      - "maisonette"
+      - "penthouse"
+      - "studio"
+      - "annexe"
+      - "lot"
+    abbreviations:
+      - "plt"
+      - "apt"
+      - "blk"
+      - "ph"
+    abbreviation_map:
+      plt: "plot"
+      apt: "apartment"
+      blk: "block"
+      ph: "phase"
+    patterns:
+      # P10, P-10, P 10, P10a
+      - "\\bp[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Plot 12, Plot-12, Plot12a
+      - "\\bplot[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Unit 5, Unit-5A
+      - "\\bunit[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Flat 3, Flat-3B
+      - "\\bflat[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Blk 2, Blk-2
+      - "\\bblk[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Phase 1, Phase-2
+      - "\\bphase[-_ ]?\\d{1,2}\\b"
+      # Block A, Block-B, Block 2
+      - "\\bblock[-_ ]?[a-z0-9]{1,3}\\b"
+      # Plt 12
+      - "\\bplt[-_ ]?\\d{1,4}\\b"
+      # Lot 7, Lot-7 (used in UAE and some UK estates)
+      - "\\blot[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Apt 3.04, Apt 12.02A (UAE floor.unit format)
+      - "\\bapt[-_ ]?\\d{1,2}[.]\\d{2,4}[a-z]?\\b"
+      # House 3, House-3A (numbered house reference)
+      - "\\bhouse[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Lodge 2, Lodge-2 (numbered lodge reference)
+      - "\\blodge[-_ ]?\\d{1,4}[a-z]?\\b"
+      # Cottage 1, Cottage-1 (numbered cottage reference)
+      - "\\bcottage[-_ ]?\\d{1,4}[a-z]?\\b"
+
+  address:
+    patterns:
+      # Full UK postcode: SW1A 1AA, TN13 1AB, DA1 2AB, ME10 3ZZ etc.
+      # Zero false positives — postcodes are structurally unambiguous.
+      - "\\b[A-Z]{1,2}\\d{1,2}[A-Z]?\\s*\\d[A-Z]{2}\\b"
+    tokens:
+      # Common UK street suffixes
+      - "road"
+      - "street"
+      - "lane"
+      - "avenue"
+      - "drive"
+      - "close"
+      - "court"
+      - "crescent"
+      - "way"
+      - "place"
+      - "terrace"
+      - "grove"
+      - "gardens"
+      - "park"
+      - "rise"
+      - "hill"
+      - "view"
+      - "walk"
+      - "mews"
+      - "row"
+      - "square"
+      - "circus"
+      - "gate"
+      - "passage"
+      - "cottages"
+      - "yard"
+      - "wharf"
+      - "quay"
+      - "parade"
+      - "mount"
+      - "vale"
+      - "meadow"
+      - "fields"
+      - "heights"
+      - "green"
+      - "common"
+      - "College"
+      - "school"
+      - "wood"
+      - "university"
+      - "copse"
+      - "chase"
+      - "croft"
+      - "dell"
+      - "dene"
+      - "garth"
+      - "lea"
+      - "mead"
+      - "reach"
+      - "ride"
+      - "glade"
+      - "hollow"
+      - "broadway"
+      - "esplanade"
+      - "embankment"
+      - "promenade"
+    abbreviations:
+      - "rd"
+      - "st"
+      - "ln"
+      - "ave"
+      - "av"
+      - "dr"
+      - "cl"
+      - "ct"
+      - "cres"
+      - "gr"
+      - "pk"
+      - "sq"
+      - "mt"
+      - "pl"
+      - "gdns"
+      - "gdn"
+      - "tce"
+    abbreviation_map:
+      rd: "road"
+      st: "street"
+      ln: "lane"
+      ave: "avenue"
+      av: "avenue"
+      dr: "drive"
+      cl: "close"
+      ct: "court"
+      cres: "crescent"
+      gr: "grove"
+      pk: "park"
+      sq: "square"
+      mt: "mount"
+      pl: "place"
+      gdns: "gardens"
+      gdn: "gardens"
+      tce: "terrace"
+

@@ -27,7 +27,8 @@ Desktop.ini
 
 # Claude / LLM
 .claude/
-context/
+seamus_context/
 
 # Output
 output/
+reports/
