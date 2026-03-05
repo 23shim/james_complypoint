@@ -15,6 +15,7 @@ from pathlib import Path
 
 import yaml
 
+from classification.fuzzy import build_fuzzy_index
 from classification.models import (
     CategoryDefinition,
     ClassificationConfig,
@@ -99,7 +100,7 @@ def load_config(
         f"{' + client' if client_data else ''})"
     )
 
-    return ClassificationConfig(
+    config = ClassificationConfig(
         types=merged_types,
         categories=merged_categories,
         weights=weights,
@@ -107,6 +108,11 @@ def load_config(
         scheme_exclusions=scheme_exclusions,
         place_names=place_names,
     )
+
+    # Build fuzzy index after all types/categories are merged.
+    config.fuzzy_index = build_fuzzy_index(config)
+
+    return config
 
 
 def _load_yaml(path: Path, required: bool = True) -> dict | None:

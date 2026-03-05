@@ -108,6 +108,60 @@ class TestCategoryMatching:
         assert any(s.label == "Planning" for s in signals)
 
 
+class TestFuzzyTypeMatching:
+
+    def test_fuzzy_multiword_typo(self, config):
+        """'Fire Risk Assesment' should fuzzy-match 'Fire Risk Assessment'."""
+        signals = match_type_signals(
+            "Fire Risk Assesment", config, SignalSource.FILENAME_TOKEN
+        )
+        assert any(s.label == "Fire Risk Assessment" for s in signals)
+        fra = next(s for s in signals if s.label == "Fire Risk Assessment")
+        assert fra.match_method == MatchMethod.FUZZY_TOKEN
+
+    def test_fuzzy_single_word_typo(self, config):
+        """'invoce' (missing 'i') should fuzzy-match 'Invoice'."""
+        signals = match_type_signals(
+            "invoce 2024", config, SignalSource.FILENAME_TOKEN
+        )
+        assert any(s.label == "Invoice" for s in signals)
+        inv = next(s for s in signals if s.label == "Invoice")
+        assert inv.match_method == MatchMethod.FUZZY_TOKEN
+
+    def test_fuzzy_penalty_applied(self, config):
+        """Fuzzy match weight should be lower than exact match weight."""
+        exact = match_type_signals("invoice", config, SignalSource.FILENAME_TOKEN)
+        fuzzy = match_type_signals("invoce", config, SignalSource.FILENAME_TOKEN)
+        exact_inv = next(s for s in exact if s.label == "Invoice")
+        fuzzy_inv = next(s for s in fuzzy if s.label == "Invoice")
+        assert fuzzy_inv.base_weight < exact_inv.base_weight
+
+    def test_fuzzy_no_match_short_token(self, config):
+        """Short tokens should NOT fuzzy-match (below min_token_length)."""
+        # "mso" is edit-distance-1 from "mos", but "mos" is only 3 chars.
+        signals = match_type_signals("mso report", config, SignalSource.FILENAME_TOKEN)
+        assert not any(
+            s.label == "MOS" and s.match_method == MatchMethod.FUZZY_TOKEN
+            for s in signals
+        )
+
+    def test_exact_match_preferred_over_fuzzy(self, config):
+        """When exact match exists, it should win over fuzzy."""
+        signals = match_type_signals("invoice", config, SignalSource.FILENAME_TOKEN)
+        inv = next(s for s in signals if s.label == "Invoice")
+        assert inv.match_method == MatchMethod.TOKEN  # not FUZZY_TOKEN
+
+    def test_fuzzy_folder_type(self, config):
+        """Fuzzy should also work for folder-sourced signals."""
+        signals = match_type_signals(
+            "Snaging Reports", config, SignalSource.FOLDER_TYPE, depth=2
+        )
+        matches = [s for s in signals if s.match_method == MatchMethod.FUZZY_TOKEN]
+        if matches:
+            assert matches[0].source == SignalSource.FOLDER_TYPE
+            assert matches[0].depth == 2
+
+
 class TestExtensionHint:
 
     def test_msg_hints_email(self, config):

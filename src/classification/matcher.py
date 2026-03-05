@@ -28,7 +28,7 @@ def match_type_signals(
 ) -> list[Signal]:
     """Match text against all type definitions.
 
-    Runs token, abbreviation, and pattern matching for each type.
+    Runs token, abbreviation, pattern, and fuzzy matching for each type.
     Returns all signals found (there may be multiple types matched).
 
     Args:
@@ -46,11 +46,26 @@ def match_type_signals(
 
     phrases = all_ngrams(tokens)
     weights = config.weights.get("signal_weights", {})
+    fuzzy_cfg = config.weights.get("fuzzy", {})
     signals = []
+
+    # Build canonical token set for fuzzy matching (O(n), done once per text).
+    # Maps each text token to its canonical dictionary form via the fuzzy index,
+    # so later checks are simple set membership.
+    token_set = set(tokens)
+    canonical_tokens = set(tokens)
+    if config.fuzzy_index:
+        for tok in tokens:
+            canonical = config.fuzzy_index.get(tok)
+            if canonical is not None:
+                canonical_tokens.add(canonical)
 
     for type_def in config.types.values():
         signal = _match_single_type(
-            text, tokens, phrases, type_def, source, depth, weights
+            text, tokens, phrases, type_def, source, depth, weights,
+            fuzzy_cfg=fuzzy_cfg,
+            token_set=token_set,
+            canonical_tokens=canonical_tokens,
         )
         if signal:
             signals.append(signal)
@@ -138,10 +153,14 @@ def _match_single_type(
     source: SignalSource,
     depth: int,
     weights: dict,
+    *,
+    fuzzy_cfg: dict | None = None,
+    token_set: set[str] | None = None,
+    canonical_tokens: set[str] | None = None,
 ) -> Signal | None:
     """Try to match a single type definition against text.
 
-    Priority: token match > pattern match > abbreviation match.
+    Priority: token match > pattern match > abbreviation match > fuzzy match.
     Returns the highest-priority match found, or None.
     """
     # 1. Token match (exact multi-word or single-word)
@@ -198,6 +217,34 @@ def _match_single_type(
                 text=text,
                 origin_layer=type_def.origin_layer,
             )
+
+    # 4. Fuzzy match (pre-computed edit-distance-1 variants)
+    if canonical_tokens and token_set and fuzzy_cfg:
+        penalty = fuzzy_cfg.get("fuzzy_penalty", 0.15)
+        for token_phrase in type_def.tokens:
+            words = token_phrase.split()
+            # All component words must appear in canonical_tokens,
+            # but at least one must be a fuzzy substitution (not in
+            # the original token_set) — otherwise exact match above
+            # would have already caught it.
+            if all(w in canonical_tokens for w in words) and not all(
+                w in token_set for w in words
+            ):
+                if source == SignalSource.FOLDER_TYPE:
+                    weight_key = "folder_type"
+                else:
+                    weight_key = "filename_token"
+                base = weights.get(weight_key, 0.60)
+                return Signal(
+                    source=source,
+                    label=type_def.name,
+                    match_term=token_phrase,
+                    match_method=MatchMethod.FUZZY_TOKEN,
+                    base_weight=round(base * (1 - penalty), 4),
+                    depth=depth,
+                    text=text,
+                    origin_layer=type_def.origin_layer,
+                )
 
     return None
 

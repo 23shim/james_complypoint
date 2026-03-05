@@ -28,6 +28,7 @@ class MatchMethod(Enum):
     TOKEN = "token"
     ABBREVIATION = "abbreviation"
     PATTERN = "pattern"
+    FUZZY_TOKEN = "fuzzy_token"
 
 
 @dataclass(frozen=True)
@@ -105,6 +106,7 @@ class ClassificationConfig:
         default_factory=lambda: SchemeExclusions(set(), [], [])
     )
     place_names: set[str] = field(default_factory=set)
+    fuzzy_index: dict[str, str] = field(default_factory=dict)
     version: str = "1.0"
 
 
